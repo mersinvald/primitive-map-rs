@@ -2,6 +2,7 @@
 name = "primitivemap"
 version = "0.1.0"
 authors = ["Mike Lubinets <lubinetsm@yandex.ru>"]
+description = "blazing fast [Integer -> T: Copy] map"
 documentation = "https://docs.rs/primitivemap"
 homepage = "https://github.com/mersinvald/primitive-map-rs"
 repository = "https://github.com/mersinvald/primitive-map-rs"
