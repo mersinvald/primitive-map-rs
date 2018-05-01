@@ -8,7 +8,6 @@ repository = "https://github.com/mersinvald/primitive-map-rs"
 keywords = ["hashmap", "container", "data-structure", "primitive", "integer"]
 categories = ["data-structures", "algorithms"]
 license = "MIT"
-license-file = "LICENSE"
 is-it-maintained-issue-resolution = { repository = "https://github.com/mersinvald/primitive-map-rs" }
 is-it-maintained-open-issues = { repository = "https://github.com/mersinvald/primitive-map-rs" }
 

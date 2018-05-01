@@ -31,8 +31,8 @@ impl<K: Key, V: Value> Bucket<K, V> for SmallVecBucket<K, V> {
     fn get(&self, key: K) -> Option<V> {
         self.members
             .iter()
-            .find(|&(k, _)| *k == key)
-            .map(|(_, v)| *v)
+            .find(|&&(k, _)| k == key)
+            .map(|&(_, v)| v)
     }
 }
 
@@ -62,8 +62,8 @@ impl<K: Key, V: Value> Bucket<K, V> for ArrayBucket<K, V> {
         let len = self.len;
         self.members[..len]
             .iter()
-            .find(|&(k, _)| *k == key)
-            .map(|(_, v)| *v)
+            .find(|&&(k, _)| k == key)
+            .map(|&(_, v)| v)
     }
 }
 
