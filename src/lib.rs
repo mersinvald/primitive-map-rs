@@ -6,9 +6,10 @@ pub mod kv;
 
 use std::marker::PhantomData;
 
-pub use bucket::{ArrayBucket, ArrayBucketList, Bucket, BucketList, SmallVecBucket, SmallVecBucketList};
-pub use kv::{Key, Value};
+pub use bucket::{ArrayBucket, ArrayBucketList, Bucket, BucketList, SmallVecBucket,
+                 SmallVecBucketList};
 pub use hash::{DefaultHasher, Hash, Hasher};
+pub use kv::{Key, Value};
 
 pub struct PrimitiveMap<
     K: Key,
@@ -58,13 +59,10 @@ impl<K, V> PrimitiveMap<K, V, SmallVecBucket<K, V>, SmallVecBucketList<K, V>, De
 where
     K: Key,
     V: Value,
-    DefaultHasher<K>: Hasher<K>
+    DefaultHasher<K>: Hasher<K>,
 {
     pub fn dynamic() -> Self {
-        PrimitiveMap::custom(
-            SmallVecBucketList::empty(),
-            DefaultHasher::default()
-        )
+        PrimitiveMap::custom(SmallVecBucketList::empty(), DefaultHasher::default())
     }
 }
 
@@ -72,41 +70,32 @@ impl<K, V> PrimitiveMap<K, V, ArrayBucket<K, V>, ArrayBucketList<K, V>, DefaultH
 where
     K: Key,
     V: Value,
-    DefaultHasher<K>: Hasher<K>
+    DefaultHasher<K>: Hasher<K>,
 {
     pub fn fixed() -> Self {
-        PrimitiveMap::custom(
-            ArrayBucketList::empty(),
-            DefaultHasher::default()
-        )
+        PrimitiveMap::custom(ArrayBucketList::empty(), DefaultHasher::default())
     }
 }
 
 impl<K, V, H> PrimitiveMap<K, V, SmallVecBucket<K, V>, SmallVecBucketList<K, V>, H>
-    where
-        K: Key,
-        V: Value,
-        H: Hasher<K>,
+where
+    K: Key,
+    V: Value,
+    H: Hasher<K>,
 {
     pub fn dynamic_with_hasher(hasher: H) -> Self {
-        PrimitiveMap::custom(
-            SmallVecBucketList::empty(),
-            hasher
-        )
+        PrimitiveMap::custom(SmallVecBucketList::empty(), hasher)
     }
 }
 
 impl<K, V, H> PrimitiveMap<K, V, ArrayBucket<K, V>, ArrayBucketList<K, V>, H>
-    where
-        K: Key,
-        V: Value,
-        H: Hasher<K>,
+where
+    K: Key,
+    V: Value,
+    H: Hasher<K>,
 {
     pub fn fixed_with_hasher(hasher: H) -> Self {
-        PrimitiveMap::custom(
-            ArrayBucketList::empty(),
-            hasher
-        )
+        PrimitiveMap::custom(ArrayBucketList::empty(), hasher)
     }
 }
 
@@ -116,12 +105,12 @@ mod tests {
 
     #[test]
     fn create_dynamic() {
-        <PrimitiveMap<u8, u32, _, _ , _>>::dynamic();
+        <PrimitiveMap<u8, u32, _, _, _>>::dynamic();
     }
 
     #[test]
     fn create_fixed() {
-        <PrimitiveMap<u8, u32, _, _ , _>>::fixed();
+        <PrimitiveMap<u8, u32, _, _, _>>::fixed();
     }
 
     #[test]
