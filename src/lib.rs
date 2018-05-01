@@ -1,10 +1,5 @@
-#![feature(test)]
-extern crate indexmap;
-extern crate test;
-
 extern crate smallvec;
 
-mod bench;
 pub mod bucket;
 pub mod hash;
 pub mod kv;
