@@ -22,10 +22,12 @@ impl<K: Key, V: Value> Bucket<K, V> for SmallVecBucket<K, V> {
         }
     }
 
+    #[inline]
     fn push(&mut self, key: K, value: V) {
         self.members.push((key, value))
     }
 
+    #[inline]
     fn get(&self, key: K) -> Option<V> {
         self.members
             .iter()
@@ -48,12 +50,14 @@ impl<K: Key, V: Value> Bucket<K, V> for ArrayBucket<K, V> {
         }
     }
 
+    #[inline]
     fn push(&mut self, key: K, value: V) {
         let idx = self.len;
         self.members[idx] = (key, value);
         self.len += 1;
     }
 
+    #[inline]
     fn get(&self, key: K) -> Option<V> {
         let len = self.len;
         self.members[..len]
@@ -87,14 +91,17 @@ impl<K: Key, V: Value> BucketList<K, V> for SmallVecBucketList<K, V> {
         vec
     }
 
+    #[inline]
     fn len(&self) -> usize {
         self.as_ref().len()
     }
 
+    #[inline]
     fn get(&self, idx: usize) -> &Self::Bucket {
         &self[idx]
     }
 
+    #[inline]
     fn get_mut(&mut self, idx: usize) -> &mut Self::Bucket {
         &mut self[idx]
     }
@@ -107,14 +114,17 @@ impl<K: Key, V: Value> BucketList<K, V> for ArrayBucketList<K, V> {
         [ArrayBucket::new(); BUCKET_LIST_SIZE]
     }
 
+    #[inline]
     fn len(&self) -> usize {
         self.as_ref().len()
     }
 
+    #[inline]
     fn get(&self, idx: usize) -> &Self::Bucket {
         &self[idx]
     }
 
+    #[inline]
     fn get_mut(&mut self, idx: usize) -> &mut Self::Bucket {
         &mut self[idx]
     }
