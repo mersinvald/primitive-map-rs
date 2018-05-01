@@ -1,5 +1,5 @@
 use std::marker::PhantomData;
-use std::{u8, u16};
+use std::{u16, u8};
 
 pub trait Hash: Sized + Copy {}
 
@@ -19,7 +19,7 @@ pub trait Hasher<T: Hash> {
 
 #[derive(Default)]
 pub struct DefaultHasher<T: Copy> {
-    _marker: PhantomData<T>
+    _marker: PhantomData<T>,
 }
 
 impl Hasher<u8> for DefaultHasher<u8> {
@@ -45,7 +45,7 @@ impl Hasher<i8> for DefaultHasher<i8> {
 }
 
 impl Hasher<u16> for DefaultHasher<u16> {
-    fn hash(value: u16) -> u16{
+    fn hash(value: u16) -> u16 {
         value ^ value >> 7
     }
 
@@ -65,7 +65,7 @@ impl Hasher<i16> for DefaultHasher<i16> {
 }
 
 impl Hasher<u32> for DefaultHasher<u32> {
-    fn hash(value: u32) -> u32{
+    fn hash(value: u32) -> u32 {
         value ^ value >> 7
     }
 
@@ -75,7 +75,7 @@ impl Hasher<u32> for DefaultHasher<u32> {
 }
 
 impl Hasher<i32> for DefaultHasher<i32> {
-    fn hash(value: i32) -> i32{
+    fn hash(value: i32) -> i32 {
         value ^ value >> 7
     }
 
@@ -85,7 +85,7 @@ impl Hasher<i32> for DefaultHasher<i32> {
 }
 
 impl Hasher<u64> for DefaultHasher<u64> {
-    fn hash(value: u64) -> u64{
+    fn hash(value: u64) -> u64 {
         value ^ value >> 7
     }
 
@@ -95,7 +95,7 @@ impl Hasher<u64> for DefaultHasher<u64> {
 }
 
 impl Hasher<usize> for DefaultHasher<usize> {
-    fn hash(value: usize) -> usize{
+    fn hash(value: usize) -> usize {
         value ^ value >> 7
     }
 

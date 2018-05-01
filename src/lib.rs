@@ -1,44 +1,42 @@
 #![feature(test)]
-extern crate test;
 extern crate indexmap;
+extern crate test;
 
 extern crate smallvec;
 
-pub mod bucket;
-pub mod kv;
-pub mod hash;
 mod bench;
+pub mod bucket;
+pub mod hash;
+pub mod kv;
 
+use smallvec::SmallVec;
 use std::marker::PhantomData;
 use std::mem;
-use smallvec::SmallVec;
 
-use bucket::{
-    Bucket,
-    BucketList,
-    SmallVecBucket,
-    SmallVecBucketList,
-    ArrayBucket,
-    ArrayBucketList,
-};
+use bucket::{ArrayBucket, ArrayBucketList, Bucket, BucketList, SmallVecBucket, SmallVecBucketList};
 
 use kv::{Key, Value};
 
-use hash::{
-    Hasher, Hash, DefaultHasher,
-};
+use hash::{DefaultHasher, Hash, Hasher};
 
-struct PrimitiveMap<K: Key, V: Value, B: Bucket<K, V>, BL: BucketList<K, V, Bucket=B>, H: Hasher<K> = DefaultHasher<K>> {
+struct PrimitiveMap<
+    K: Key,
+    V: Value,
+    B: Bucket<K, V>,
+    BL: BucketList<K, V, Bucket = B>,
+    H: Hasher<K> = DefaultHasher<K>,
+> {
     buckets: BL,
     _marker: PhantomData<(K, V, B, H)>,
 }
 
 impl<K, V, B, BL, H> PrimitiveMap<K, V, B, BL, H>
-    where K: Key,
-          V: Value,
-          B: Bucket<K, V>,
-          BL: BucketList<K, V, Bucket=B>,
-          H: Hasher<K>,
+where
+    K: Key,
+    V: Value,
+    B: Bucket<K, V>,
+    BL: BucketList<K, V, Bucket = B>,
+    H: Hasher<K>,
 {
     fn with_bucket_list(buckets: BL) -> Self {
         PrimitiveMap {
@@ -66,9 +64,10 @@ impl<K, V, B, BL, H> PrimitiveMap<K, V, B, BL, H>
 }
 
 impl<K, V, H> PrimitiveMap<K, V, SmallVecBucket<K, V>, SmallVecBucketList<K, V>, H>
-    where K: Key,
-          V: Value,
-          H: Hasher<K>,
+where
+    K: Key,
+    V: Value,
+    H: Hasher<K>,
 {
     fn with_dynamic_bucket() -> Self {
         PrimitiveMap {
@@ -79,9 +78,10 @@ impl<K, V, H> PrimitiveMap<K, V, SmallVecBucket<K, V>, SmallVecBucketList<K, V>,
 }
 
 impl<K, V, H> PrimitiveMap<K, V, ArrayBucket<K, V>, ArrayBucketList<K, V>, H>
-    where K: Key,
-          V: Value,
-          H: Hasher<K>,
+where
+    K: Key,
+    V: Value,
+    H: Hasher<K>,
 {
     fn with_fixed_bucket() -> Self {
         PrimitiveMap {
@@ -119,7 +119,8 @@ mod tests {
 
     #[test]
     fn insert_dynamic() {
-        let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> = PrimitiveMap::with_dynamic_bucket();
+        let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
+            PrimitiveMap::with_dynamic_bucket();
         map.insert(0u8, 10u32);
     }
 
@@ -137,13 +138,14 @@ mod tests {
 
     #[test]
     fn get_empty_fixed() {
-        let map: PrimitiveMap<_, u32, _, _, DefaultHasher<_>>  = PrimitiveMap::with_fixed_bucket();
+        let map: PrimitiveMap<_, u32, _, _, DefaultHasher<_>> = PrimitiveMap::with_fixed_bucket();
         assert_eq!(map.get(0u64), None);
     }
 
     #[test]
     fn insert_and_get_dynamic() {
-        let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> = PrimitiveMap::with_dynamic_bucket();
+        let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
+            PrimitiveMap::with_dynamic_bucket();
         map.insert(0i8, 10u32);
         assert_eq!(map.get(0i8), Some(10u32));
     }
@@ -157,13 +159,10 @@ mod tests {
 
     #[test]
     fn insert_saturate_buckets_dynamic() {
-        let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> = PrimitiveMap::with_dynamic_bucket();
+        let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
+            PrimitiveMap::with_dynamic_bucket();
         for i in 0..10000 {
             map.insert(i, 10u32);
         }
     }
 }
-
-
-
-

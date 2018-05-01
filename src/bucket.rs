@@ -1,7 +1,7 @@
-use std::ops::{Index, Deref};
-use std::borrow::{Borrow, BorrowMut};
-use smallvec::SmallVec;
 use kv::{Key, Value};
+use smallvec::SmallVec;
+use std::borrow::{Borrow, BorrowMut};
+use std::ops::{Deref, Index};
 
 pub const BUCKET_SIZE: usize = 2;
 pub const BUCKET_LIST_SIZE: usize = 2048;
@@ -29,7 +29,8 @@ impl<K: Key, V: Value> Bucket<K, V> for SmallVecBucket<K, V> {
     }
 
     fn get(&self, key: K) -> Option<V> {
-        self.members.iter()
+        self.members
+            .iter()
             .find(|&(k, _)| *k == key)
             .map(|(k, v)| *v)
     }
@@ -38,7 +39,7 @@ impl<K: Key, V: Value> Bucket<K, V> for SmallVecBucket<K, V> {
 #[derive(Copy, Clone)]
 pub struct ArrayBucket<K: Key, V> {
     members: [(K, V); BUCKET_SIZE],
-    len: usize
+    len: usize,
 }
 
 impl<K: Key, V: Value> Bucket<K, V> for ArrayBucket<K, V> {
@@ -57,7 +58,8 @@ impl<K: Key, V: Value> Bucket<K, V> for ArrayBucket<K, V> {
 
     fn get(&self, key: K) -> Option<V> {
         let len = self.len;
-        self.members[..len].iter()
+        self.members[..len]
+            .iter()
             .find(|&(k, _)| *k == key)
             .map(|(k, v)| *v)
     }
