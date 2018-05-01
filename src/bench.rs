@@ -14,7 +14,7 @@ mod tests {
         let high = test::black_box(u8::MAX);
         b.iter(|| {
             let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
-                PrimitiveMap::with_dynamic_bucket();
+                PrimitiveMap::dynamic();
             for i in low..high {
                 map.insert(i, 0xFFFF);
             }
@@ -30,7 +30,7 @@ mod tests {
         let high = test::black_box(u8::MAX);
         b.iter(|| {
             let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
-                PrimitiveMap::with_fixed_bucket();
+                PrimitiveMap::fixed();
             for i in low..high {
                 map.insert(i, 0xFFFF);
             }
@@ -76,7 +76,7 @@ mod tests {
         let high = test::black_box(u16::MAX);
         b.iter(|| {
             let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
-                PrimitiveMap::with_dynamic_bucket();
+                PrimitiveMap::dynamic();
             for i in low..high {
                 map.insert(i, 0xFFFF);
             }
@@ -122,7 +122,7 @@ mod tests {
         let high = test::black_box(BUCKET_LIST_SIZE as u16);
         b.iter(|| {
             let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
-                PrimitiveMap::with_dynamic_bucket();
+                PrimitiveMap::dynamic();
             for i in low..high {
                 map.insert(i, 0xFFFF);
             }
@@ -138,7 +138,7 @@ mod tests {
         let high = test::black_box(BUCKET_LIST_SIZE as u16);
         b.iter(|| {
             let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
-                PrimitiveMap::with_fixed_bucket();
+                PrimitiveMap::fixed();
             for i in low..high {
                 map.insert(i, 0xFFFF);
             }
@@ -185,7 +185,7 @@ mod tests {
         let high = test::black_box(u32::MAX);
         b.iter(|| {
             let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
-                PrimitiveMap::with_dynamic_bucket();
+                PrimitiveMap::dynamic();
             for i in low..high {
                 map.insert(i, 0xFFFF);
             }
@@ -217,7 +217,7 @@ mod tests {
         let high = test::black_box(BUCKET_LIST_SIZE as u32);
         b.iter(|| {
             let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
-                PrimitiveMap::with_dynamic_bucket();
+                PrimitiveMap::dynamic();
             for i in low..high {
                 map.insert(i, 0xFFFF);
             }
@@ -233,7 +233,7 @@ mod tests {
         let high = test::black_box(BUCKET_LIST_SIZE as u32);
         b.iter(|| {
             let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
-                PrimitiveMap::with_fixed_bucket();
+                PrimitiveMap::fixed();
             for i in low..high {
                 map.insert(i, 0xFFFF);
             }
@@ -280,7 +280,7 @@ mod tests {
         let high = test::black_box(u64::MAX);
         b.iter(|| {
             let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
-                PrimitiveMap::with_dynamic_bucket();
+                PrimitiveMap::dynamic();
             for i in low..high {
                 map.insert(i, 0xFFFF);
             }
@@ -312,7 +312,7 @@ mod tests {
         let high = test::black_box(BUCKET_LIST_SIZE as u64);
         b.iter(|| {
             let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
-                PrimitiveMap::with_dynamic_bucket();
+                PrimitiveMap::dynamic();
             for i in low..high {
                 map.insert(i, 0xFFFF);
             }
@@ -328,7 +328,7 @@ mod tests {
         let high = test::black_box(BUCKET_LIST_SIZE as u64);
         b.iter(|| {
             let mut map: PrimitiveMap<_, _, _, _, DefaultHasher<_>> =
-                PrimitiveMap::with_fixed_bucket();
+                PrimitiveMap::fixed();
             for i in low..high {
                 map.insert(i, 0xFFFF);
             }
