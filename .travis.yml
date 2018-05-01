@@ -1,0 +1,8 @@
+language: rust
+
+rust:
+ - stable
+ - nightly
+
+after_success:
+ - cargo bench

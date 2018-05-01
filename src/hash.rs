@@ -18,7 +18,7 @@ pub trait Hasher<T: Hash> {
 }
 
 #[derive(Default)]
-pub struct DefaultHasher<T: Copy> {
+pub struct DefaultHasher<T: Hash> {
     _marker: PhantomData<T>,
 }
 
