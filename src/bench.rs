@@ -3,7 +3,6 @@ mod tests {
     use bucket::BUCKET_LIST_SIZE;
     use hash::DefaultHasher;
     use indexmap::IndexMap;
-    use kv::Key;
     use std::{collections::HashMap, u16, u32, u64, u8};
     use test;
     use PrimitiveMap;
