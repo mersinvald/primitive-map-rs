@@ -1,0 +1,12 @@
+language: rust
+sudo: required
+
+os:
+ - linux
+
+rust:
+ - stable
+ - nightly
+
+after_success:
+ - cargo bench
