@@ -1,0 +1,9 @@
+[package]
+name = "primitivemap"
+version = "0.1.0"
+authors = ["Mike Lubinets <lubinetsm@yandex.ru>"]
+
+[dependencies]
+smallvec = "0.6.1"
+arrayvec = "0.4.7"
+indexmap = "1.0.1"
