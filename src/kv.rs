@@ -7,9 +7,9 @@ where
 {
 }
 
-pub trait Value: Sized + Copy + Default {}
+pub trait Value: Sized + Clone + Default {}
 impl<T> Value for T
 where
-    T: Sized + Copy + Default,
+    T: Sized + Clone + Default,
 {
 }

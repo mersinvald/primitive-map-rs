@@ -6,11 +6,10 @@ pub mod kv;
 
 use std::marker::PhantomData;
 
-pub use bucket::{ArrayBucket, ArrayBucketList, Bucket, BucketList, SmallVecBucket,
-                 SmallVecBucketList};
+pub use bucket::{Bucket, BucketList};
 pub use hash::{DefaultHasher, Hash, Hasher};
 pub use kv::{Key, Value};
-
+/*
 pub struct PrimitiveMap<
     K: Key,
     V: Value,
@@ -47,6 +46,29 @@ where
         let addr = self.get_addr(key);
         let bucket = &self.buckets.get(addr);
         bucket.get(key)
+    }
+
+    // Linear probing
+    pub fn find_bucket<P: Fn(&B) -> bool>(&self, start_idx: addr, predicate: P) -> Option<&B> {
+        let idx = start_idx;
+
+        loop {
+            // Get bucket from the list
+            let bucket = self.buckets.get(idx);
+
+            // Test the bucket against predicate
+            if predicate(bucket) {
+                return Some(bucket)
+            }
+
+            // Increment index
+            idx = (idx + 1) % self.buckets.len();
+
+            // On the full cycle, return None
+            if idx == start_idx {
+                return None
+            }
+        }
     }
 
     fn get_addr(&self, key: K) -> usize {
@@ -171,3 +193,4 @@ mod tests {
         }
     }
 }
+*/
