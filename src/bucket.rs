@@ -67,28 +67,26 @@ impl<K: Key, V: Value> Bucket<K, V> for Vec<(K, V)> {
     }
 }
 
-pub trait BucketList<K: Key, V: Value> {
+pub trait BucketListNew<K: Key, V: Value> {
     type Bucket: Bucket<K, V>;
     fn new(len: Option<usize>) -> Self;
+}
+
+pub trait BucketList<K: Key, V: Value> {
+    type Bucket: Bucket<K, V>;
     fn len(&self) -> usize;
     fn get(&self, idx: usize) -> &Self::Bucket;
     fn get_mut(&mut self, idx: usize) -> &mut Self::Bucket;
     // TODO: Add default implementation that uses get & get_mut
     fn search<P: Fn(&Self::Bucket) -> bool>(&self, start_idx: usize, predicate: P) -> Option<&Self::Bucket>;
-    fn search_mut<P: Fn(&Self::Bucket) -> bool>(&self, start_idx: usize, predicate: P) -> Option<&mut Self::Bucket>;
+    fn search_mut<P: Fn(&Self::Bucket) -> bool>(&mut self, start_idx: usize, predicate: P) -> Option<&mut Self::Bucket>;
 }
 
-impl<K: Key, V: Value, B: Bucket<K, V>> BucketList<K, V> for Vec<B> {
+impl<K: Key, V: Value, B: Bucket<K, V> + 'static> BucketList<K, V> for [B] {
     type Bucket = B;
 
-    fn new(len: Option<usize>) -> Self {
-        use std::iter;
-        let len = len.expect("Vec bucket list should be provided with length");
-        iter::repeat(B::new()).take(len).collect()
-    }
-
     fn len(&self) -> usize {
-        Vec::len(self)
+        <[B]>::len(self)
     }
 
     fn get(&self, idx: usize) -> &Self::Bucket {
@@ -100,17 +98,78 @@ impl<K: Key, V: Value, B: Bucket<K, V>> BucketList<K, V> for Vec<B> {
     }
 
     fn search<P: Fn(&Self::Bucket) -> bool>(&self, start_idx: usize, predicate: P) -> Option<&Self::Bucket> {
-        assert!(start_idx < self.len())
+        for i in WrappingIndexIterator::new(start_idx, self.len()) {
+            // It is safe here as we do not have indexes outside of [0; len)
+            let bucket = unsafe {
+                self.get_unchecked(i)
+            };
 
+            if predicate(bucket) {
+                return Some(bucket)
+            }
+        }
+
+        None
     }
-    fn search_mut<P: Fn(&Self::Bucket) -> bool>(&self, start_idx: usize, predicate: P) -> Option<&mut Self::Bucket>;
+
+    fn search_mut<P: Fn(&Self::Bucket) -> bool>(&mut self, start_idx: usize, predicate: P) -> Option<&mut Self::Bucket> {
+        for i in WrappingIndexIterator::new(start_idx, self.len()) {
+            // It is safe here as we do not have indexes outside of [0; len)
+            // T_T
+            // borrowck was mad about the mutable version of search,
+            // so I was forced to rewrite it this awful way
+            if predicate(unsafe {self.get_unchecked_mut(i)}) {
+                return Some(unsafe { self.get_unchecked_mut(i) })
+            }
+        }
+
+        None
+    }
+}
+
+use std::ops::{Deref,  DerefMut};
+
+impl<T, K: Key, V: Value, B: Bucket<K, V> + 'static> BucketList<K, V> for T
+    where T: Deref<Target=[B]> + DerefMut
+{
+    type Bucket = B;
+
+    fn len(&self) -> usize {
+        <[B] as BucketList<K, V>>::len(self)
+    }
+
+    fn get(&self, idx: usize) -> &Self::Bucket {
+        <[B] as BucketList<K, V>>::get(self, idx)
+    }
+
+    fn get_mut(&mut self, idx: usize) -> &mut Self::Bucket {
+        <[B] as BucketList<K, V>>::get_mut(self, idx)
+    }
+
+    fn search<P: Fn(&Self::Bucket) -> bool>(&self, start_idx: usize, predicate: P) -> Option<&Self::Bucket> {
+        <[B] as BucketList<K, V>>::search(self, start_idx, predicate)
+    }
+
+    fn search_mut<P: Fn(&Self::Bucket) -> bool>(&mut self, start_idx: usize, predicate: P) -> Option<&mut Self::Bucket> {
+        <[B] as BucketList<K, V>>::search_mut(self, start_idx, predicate)
+    }
+}
+
+impl<K: Key, V: Value, B: Bucket<K, V>> BucketListNew<K, V> for Vec<B> {
+    type Bucket = B;
+
+    fn new(len: Option<usize>) -> Self {
+        use std::iter;
+        let len = len.expect("Vec bucket list should be provided with length");
+        iter::repeat(B::new()).take(len).collect()
+    }
 }
 
 use std::mem;
 
 macro_rules! impl_bucket_list_for_array {
     ($size:expr) => {
-        impl<K: Key, V: Value, B: Bucket<K, V>> BucketList<K, V> for [B; $size] {
+        impl<K: Key, V: Value, B: Bucket<K, V>> BucketListNew<K, V> for [B; $size] {
             type Bucket = B;
 
             fn new(_: Option<usize>) -> Self {
@@ -123,22 +182,11 @@ macro_rules! impl_bucket_list_for_array {
                     array
                 }
             }
-
-            fn len(&self) -> usize {
-                $size
-            }
-
-            fn get(&self, idx: usize) -> &Self::Bucket {
-                &self[idx]
-            }
-
-            fn get_mut(&mut self, idx: usize) -> &mut Self::Bucket {
-                &mut self[idx]
-            }
         }
     };
 }
 
+impl_bucket_list_for_array!(2);
 impl_bucket_list_for_array!(4);
 impl_bucket_list_for_array!(8);
 impl_bucket_list_for_array!(16);
@@ -159,12 +207,91 @@ struct WrappingIndexIterator {
     start: usize,
     length: usize,
     current: usize,
+    first: bool
+}
+
+impl WrappingIndexIterator {
+    pub fn new(start: usize, length: usize) -> Self {
+        assert!(start <= length);
+        WrappingIndexIterator {
+            start,
+            length,
+            current: start,
+            first: true,
+        }
+    }
 }
 
 impl Iterator for WrappingIndexIterator {
+    type Item = usize;
+    fn next(&mut self) -> Option<Self::Item> {
+        // Check that we haven't returned to the beginning
+        if self.current != self.start || self.first {
+            self.first = false;
 
+            // Check that we shouldn't wrap
+            if self.current < self.length {
+                let item = self.current;
+                self.current += 1;
+                Some(item)
+            } else {
+                self.current = 0;
+                self.next()
+            }
+        } else {
+            None
+        }
+    }
 }
 
-fn wrapping_index_iterator(start: usize, length: usize) -> impl Iterator<Item=usize> {
-    start
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn wrapping_index_iterator() {
+        let start = 0;
+        let length = 5;
+        let result = WrappingIndexIterator::new(start, length).into_iter().collect::<Vec<_>>();
+        assert_eq!(&result[..], &[0, 1, 2, 3, 4]);
+
+        let start = 2;
+        let length = 5;
+        let result = WrappingIndexIterator::new(start, length).into_iter().collect::<Vec<_>>();
+        assert_eq!(&result[..], &[2, 3, 4, 0, 1]);
+
+        let start = 0;
+        let length = 1;
+        let result = WrappingIndexIterator::new(start, length).into_iter().collect::<Vec<_>>();
+        assert_eq!(&result[..], &[0]);
+
+        let start = 0;
+        let length = 0;
+        let result = WrappingIndexIterator::new(start, length).into_iter().collect::<Vec<_>>();
+        assert_eq!(&result[..], &[]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn wrapping_index_iterator_invalid_input() {
+        let start = 1;
+        let length = 0;
+        WrappingIndexIterator::new(start, length);
+    }
+
+    #[test]
+    fn vec_bucket_list_with_flat_bucket() {
+        let bl = vec![Some((1, 1)), Some((2, 2))];
+        let bucket = bl.search(1, |bucket| bucket.map(|(k, v)| k == 1).unwrap_or(false));
+        assert_eq!(bucket.unwrap().unwrap(), (1, 1));
+    }
+
+    #[test]
+    fn vec_bucket_list_with_vec_bucket() {
+        let bl = vec![vec![(1, 1), (2, 2)], vec![(3, 3)]];
+        let bucket = bl.search(1, |bucket| {
+            bucket.iter().any(|(k, v)| *k == 2)
+        });
+        assert_eq!(bucket.unwrap(), &vec![(1, 1), (2, 2)]);
+    }
 }
