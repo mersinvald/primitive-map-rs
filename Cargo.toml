@@ -16,7 +16,7 @@ is-it-maintained-issue-resolution = { repository = "https://github.com/mersinval
 is-it-maintained-open-issues = { repository = "https://github.com/mersinvald/primitive-map-rs" }
 
 [dependencies]
-smallvec = "0.6.1"
+smallvec = "0.6"
 
 [dev-dependencies]
-indexmap = "1.0.1"
+indexmap = "1.0"
