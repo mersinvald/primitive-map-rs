@@ -32,9 +32,28 @@ impl<K: Key, V: Value> Bucket<K, V> for OptionBucket<K, V> {
     }
 }
 
-pub type SmallVecBucket<K, V> = SmallVec<[(K, V); 1]>;
+pub type SmallVecBucket1<K, V> = SmallVec<[(K, V); 1]>;
+pub type SmallVecBucket4<K, V> = SmallVec<[(K, V); 4]>;
 
-impl<K: Key, V: Value> Bucket<K, V> for SmallVecBucket<K, V> {
+impl<K: Key, V: Value> Bucket<K, V> for SmallVecBucket1<K, V> {
+    fn empty() -> Self {
+        SmallVec::default()
+    }
+
+    fn push(&mut self, key: K, value: V) {
+        self.push((key, value))
+    }
+
+    fn get(&self, key: K) -> Option<&V> {
+        self.iter().find(|(k, _)| *k == key).map(|(_, v)| v)
+    }
+
+    fn reached_max_capacity(&self) -> bool {
+        false
+    }
+}
+
+impl<K: Key, V: Value> Bucket<K, V> for SmallVecBucket4<K, V> {
     fn empty() -> Self {
         SmallVec::default()
     }

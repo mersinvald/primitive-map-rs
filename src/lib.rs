@@ -8,14 +8,14 @@ pub mod kv;
 
 use std::marker::PhantomData;
 
-pub use bucket::{Bucket, BucketList, BucketListNew, OptionBucket, SmallVecBucket, VecBucket};
+pub use bucket::{Bucket, BucketList, BucketListNew, OptionBucket, SmallVecBucket1, SmallVecBucket4, VecBucket};
 pub use hash::{DefaultHasher, Hash, Hasher};
 pub use kv::{Key, Value};
 
 pub struct PrimitiveMap<
     K: Key,
     V: Value,
-    B: Bucket<K, V> = SmallVecBucket<K, V>,
+    B: Bucket<K, V> = SmallVecBucket1<K, V>,
     BL: BucketList<K, V, B> = Vec<B>,
     H: Hasher<K> = DefaultHasher<K>,
 > {
@@ -42,12 +42,12 @@ where
 /// `Vec`-based `map` with `SmallVec`(4) buckets.
 /// The balanced default
 pub type VecPrimitiveMap<K, V> =
-    PrimitiveMap<K, V, SmallVecBucket<K, V>, Vec<SmallVecBucket<K, V>>, DefaultHasher<K>>;
+    PrimitiveMap<K, V, SmallVecBucket4<K, V>, Vec<SmallVecBucket4<K, V>>, DefaultHasher<K>>;
 
 /// `Array`-based `map` with `SmallVec`(1) buckets.
 /// The main array is stored on the stack,
 /// the buckets may extend onto heap.
-pub type ArrayPrimitiveMap<K, V, A> = PrimitiveMap<K, V, SmallVecBucket<K, V>, A, DefaultHasher<K>>;
+pub type ArrayPrimitiveMap<K, V, A> = PrimitiveMap<K, V, SmallVecBucket1<K, V>, A, DefaultHasher<K>>;
 
 /// Linear-probing PrimitiveMap alias.
 /// Useful in embedded environments and where full-stack `map` alignment is necessary
