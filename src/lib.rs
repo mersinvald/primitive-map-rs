@@ -1,5 +1,3 @@
-#![feature(nll)]
-
 extern crate smallvec;
 
 pub mod bucket;
