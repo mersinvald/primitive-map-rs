@@ -50,7 +50,7 @@ pub type VecPrimitiveMap<K, V> =
 pub type ArrayPrimitiveMap<K, V, A> = PrimitiveMap<K, V, SmallVecBucket1<K, V>, A, DefaultHasher<K>>;
 
 /// Linear-probing PrimitiveMap alias.
-/// Useful in embedded environments and where full-stack `map` alignment is necessary
+/// Useful in embedded environments and where on-stack `map` alignment is necessary
 pub type LinearPrimitiveMap<K, V, A> = PrimitiveMap<K, V, OptionBucket<K, V>, A, DefaultHasher<K>>;
 
 impl<K, V, B, BL, H> PrimitiveMap<K, V, B, BL, H>
@@ -61,11 +61,11 @@ where
     BL: BucketList<K, V, B> + BucketListNew<K, V, B>,
     H: Hasher<K>,
 {
-    fn default() -> Self {
+    pub fn new() -> Self {
         PrimitiveMap::custom(BL::initialized(), H::default())
     }
 
-    fn with_capacity(cap: usize) -> Self {
+    pub fn with_capacity(cap: usize) -> Self {
         PrimitiveMap::custom(BL::initialized_with_capacity(cap), H::default())
     }
 }
@@ -78,19 +78,7 @@ where
     BL: BucketList<K, V, B>,
     DefaultHasher<K>: Hasher<K>,
 {
-    fn with_buckets(buckets: BL) -> Self {
-        PrimitiveMap::custom(buckets, DefaultHasher::new())
-    }
-}
-
-impl<K, V, BL> PrimitiveMap<K, V, OptionBucket<K, V>, BL>
-where
-    K: Key,
-    V: Value,
-    BL: BucketList<K, V, OptionBucket<K, V>>,
-    DefaultHasher<K>: Hasher<K>,
-{
-    fn with_linear_probing(buckets: BL) -> Self {
+    pub fn with_buckets(buckets: BL) -> Self {
         PrimitiveMap::custom(buckets, DefaultHasher::new())
     }
 }
@@ -103,7 +91,7 @@ where
     BL: BucketList<K, V, B>,
     H: Hasher<K>,
 {
-    fn custom(buckets: BL, _: H) -> Self {
+    pub fn custom(buckets: BL, _: H) -> Self {
         PrimitiveMap {
             buckets,
             _marker: PhantomData,
@@ -151,7 +139,7 @@ mod tests {
     #[test]
     fn create_vec() {
         // Vec map with StackVec(1) bucket
-        let mut map = VecPrimitiveMap::default();
+        let mut map = VecPrimitiveMap::new();
         map.insert(1, 1);
         map.get(1);
     }
@@ -175,7 +163,7 @@ mod tests {
 
     #[test]
     fn insert_dynamic() {
-        let mut map = VecPrimitiveMap::default();
+        let mut map = VecPrimitiveMap::new();
         map.insert(0u8, 10u32);
     }
 
@@ -187,7 +175,7 @@ mod tests {
 
     #[test]
     fn get_empty_dynamic() {
-        let map = VecPrimitiveMap::default();
+        let map = VecPrimitiveMap::new();
         assert_eq!(map.get(0u32), None::<&u32>);
     }
 
@@ -199,7 +187,7 @@ mod tests {
 
     #[test]
     fn insert_and_get_dynamic() {
-        let mut map = VecPrimitiveMap::default();
+        let mut map = VecPrimitiveMap::new();
         map.insert(0i8, 10u32);
         assert_eq!(map.get(0i8), Some(&10u32));
     }
