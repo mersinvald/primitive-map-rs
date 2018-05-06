@@ -180,6 +180,7 @@ use std::mem;
 
 macro_rules! impl_bucket_list_for_array {
     ($name:ident, $size:expr) => {
+        #[derive(Clone)]
         pub struct $name<K: Key, V: Value, B: Bucket<K, V>> {
             inner: [B; $size],
             _marker: PhantomData<(K, V)>,

@@ -23,7 +23,23 @@ pub struct PrimitiveMap<
     _marker: PhantomData<(K, V, H, B)>,
 }
 
-/// `Vec`-based `map` with `SmallVec`(1) buckets.
+impl<K, V, B, BL, H> Clone for PrimitiveMap<K, V, B, BL, H>
+where
+    K: Key,
+    V: Value,
+    B: Bucket<K, V> + Clone,
+    BL: BucketList<K, V, B> + Clone,
+    H: Hasher<K> + Default,
+{
+    fn clone(&self) -> Self {
+        PrimitiveMap::custom(
+            self.buckets.clone(),
+            H::default()
+        )
+    }
+}
+
+/// `Vec`-based `map` with `SmallVec`(4) buckets.
 /// The balanced default
 pub type VecPrimitiveMap<K, V> =
     PrimitiveMap<K, V, SmallVecBucket<K, V>, Vec<SmallVecBucket<K, V>>, DefaultHasher<K>>;
