@@ -130,6 +130,7 @@ impl Hasher<usize> for DefaultHasher<usize> {
 mod tests {
     use super::*;
 
+    #[test]
     fn default_hasher_type_support() {
         DefaultHasher::hash(1_u8);
         DefaultHasher::hash(1_u16);

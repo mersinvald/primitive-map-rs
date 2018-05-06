@@ -364,7 +364,7 @@ mod tests {
     #[test]
     fn vec_bucket_list_with_vec_bucket() {
         let bl = vec![vec![(1, 1), (2, 2)], vec![(3, 3)]];
-        let bucket = bl.search(1, |bucket| bucket.iter().any(|(k, v)| *k == 2));
+        let bucket = bl.search(1, |bucket| bucket.iter().any(|(k, _v)| *k == 2));
         assert_eq!(bucket.unwrap(), &vec![(1, 1), (2, 2)]);
     }
 }
