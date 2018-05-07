@@ -27,5 +27,5 @@ name = "bench"
 harness = false
 
 [[bench]]
-name = "basic"
+name = "library_only"
 harness = false
