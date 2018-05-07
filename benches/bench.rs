@@ -186,8 +186,32 @@ fn bench_u64_overload(c: &mut Criterion) {
     );
 }
 
+use std::time::Duration;
 
-criterion_group!(benches, bench_u8, bench_u16);
-criterion_group!(benches_low_load, bench_u16_low_load, bench_u32_low_load, bench_u64_low_load);
-criterion_group!(benches_overload, bench_u16_overload, bench_u32_overload, bench_u64_overload);
-criterion_main!(benches, benches_low_load, benches_overload);
+fn criterion_config() -> Criterion {
+    Criterion::default()
+        .measurement_time(Duration::from_secs(10))
+        .sample_size(200)
+}
+
+criterion_group! {
+    name = benches_u8;
+    config = criterion_config();
+    targets = bench_u8
+}
+
+criterion_group!(benches_u16, bench_u16);
+
+criterion_group! {
+    name = benches_low_load;
+    config = criterion_config();
+    targets = bench_u16_low_load, bench_u32_low_load, bench_u64_low_load
+}
+
+criterion_group! {
+    name = benches_overload;
+    config = criterion_config();
+    targets = bench_u16_overload, bench_u32_overload, bench_u64_overload
+}
+
+criterion_main!(benches_u8, benches_u16, benches_low_load, benches_overload);
