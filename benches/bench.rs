@@ -1,313 +1,193 @@
-#![feature(test, step_trait)]
+#![feature(step_trait)]
+#[macro_use]
+extern crate criterion;
 extern crate indexmap;
-extern crate test;
-
 extern crate primitivemap;
 
-#[cfg(test)]
-mod tests {
-    use primitivemap::{PrimitiveMap, VecPrimitiveMap, ArrayPrimitiveMap, LinearPrimitiveMap};
-    use primitivemap::bucket::{Array256, Array1024};
-    use primitivemap::kv::Key;
-    use primitivemap::Hasher;
-    use primitivemap::{Bucket, BucketStore, BucketStoreNew};
+use criterion::Criterion;
+use criterion::black_box;
 
-    use indexmap::IndexMap;
-    use std::{collections::HashMap, u16, u32, u64, u8};
-    use test;
+use primitivemap::{PrimitiveMap, VecPrimitiveMap, ArrayPrimitiveMap, LinearPrimitiveMap};
+use primitivemap::bucket::{Array256, Array1024};
+use primitivemap::kv::Key;
+use primitivemap::Hasher;
+use primitivemap::{Bucket, BucketStore, BucketStoreNew};
+use std::{u8, u16, u32, u64};
+use criterion::Fun;
 
-    const LOW_LOAD_BATCH_SIZE: usize = 1024;
+use indexmap::IndexMap;
+use std::{collections::HashMap};
 
-    use std::iter::Step;
-    use std::fmt::Debug;
-    fn bench_generic_pmap<T: Key + Step + Debug, B: Bucket<T, T>, BL: BucketStore<T, T, B> + Clone, H: Hasher<T>>(low:T, high: T, map: PrimitiveMap<T, T, B, BL, H>, b: &mut test::Bencher) {
-        let low = test::black_box(low);
-        let high = test::black_box(high);
-        b.iter(|| {
-            let mut map = map.clone();
-            for i in low..high {
-                map.insert(i, i);
-            }
-            for i in low..high {
-                assert_eq!(map.get(i), Some(&i));
-            }
-        })
-    }
+const LOW_LOAD_MAP_SIZE: usize = 1024;
+const LOW_LOAD_BATCH_SIZE: usize = 256;
+const OVERLOAD_MAP_SIZE: usize = 256;
+const OVERLOAD_BATCH_SIZE: usize = 8192;
 
-    #[bench]
-    fn bench_u8_vec_primitive_map(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u8, u8::MAX,
-            VecPrimitiveMap::with_capacity(u8::MAX as usize),
-            b
-        );
-    }
+use std::iter::Step;
+use std::fmt::Debug;
 
-    #[bench]
-    fn bench_u8_array_primitive_map(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u8, u8::MAX,
-            ArrayPrimitiveMap::with_buckets(Array256::initialized()),
-            b
-        );
-    }
 
-    #[bench]
-    fn bench_u8_linear_primitive_map(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u8, u8::MAX,
-            LinearPrimitiveMap::with_buckets(Array256::initialized()),
-            b
-        );
-    }
-
-    #[bench]
-    fn bench_u8_indexmap(b: &mut test::Bencher) {
-        let low = test::black_box(0_u8);
-        let high = test::black_box(u8::MAX);
-        b.iter(|| {
-            let mut map = IndexMap::new();
-            for i in low..high {
-                map.insert(i, i);
-            }
-            for i in low..high {
-                assert_eq!(map.get(&i), Some(&i));
-            }
-        })
-    }
-
-    #[bench]
-    fn bench_u8_std_hashmap(b: &mut test::Bencher) {
-        let low = test::black_box(0_u8);
-        let high = test::black_box(u8::MAX);
-        b.iter(|| {
-            let mut map = HashMap::new();
-            for i in low..high {
-                map.insert(i, i);
-            }
-            for i in low..high {
-                assert_eq!(map.get(&i), Some(&i));
-            }
-        })
-    }
-
-    #[bench]
-    fn bench_u16_vec_primitive_map(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u16, u16::MAX,
-            VecPrimitiveMap::with_capacity(u16::MAX as usize),
-            b
-        );
-    }
-
-    // Note: this test saturates buckets __real hard__, effectively turning algorithm into O(n)
-    #[bench]
-    fn bench_u16_array_primitive_map(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u16, u16::MAX,
-            ArrayPrimitiveMap::with_buckets(Array1024::initialized()),
-            b
-        );
-    }
-
-    #[bench]
-    fn bench_u16_indexmap(b: &mut test::Bencher) {
-        let low = test::black_box(0_u16);
-        let high = test::black_box(u16::MAX);
-        b.iter(|| {
-            let mut map = IndexMap::new();
-            for i in low..high {
-                map.insert(i, i);
-            }
-            for i in low..high {
-                assert_eq!(map.get(&i), Some(&i));
-            }
-        })
-    }
-
-    #[bench]
-    fn bench_u16_std_hashmap(b: &mut test::Bencher) {
-        let low = test::black_box(0_u16);
-        let high = test::black_box(u16::MAX);
-        b.iter(|| {
-            let mut map = HashMap::new();
-            for i in low..high {
-                map.insert(i, i);
-            }
-            for i in low..high {
-                assert_eq!(map.get(&i), Some(&i));
-            }
-        })
-    }
-
-    #[bench]
-    fn bench_u16_vec_primitive_map_low_load(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u16, LOW_LOAD_BATCH_SIZE as u16,
-            VecPrimitiveMap::with_capacity(LOW_LOAD_BATCH_SIZE),
-            b
-        );
-    }
-
-    #[bench]
-    fn bench_u16_array_primitive_map_low_load(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u16, LOW_LOAD_BATCH_SIZE as u16,
-            ArrayPrimitiveMap::with_buckets(Array1024::initialized()),
-            b
-        );
-    }
-
-    #[bench]
-    fn bench_u16_linear_primitive_map_low_load(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u16, LOW_LOAD_BATCH_SIZE as u16,
-            LinearPrimitiveMap::with_buckets(Array1024::initialized()),
-            b
-        );
-    }
-
-    #[bench]
-    fn bench_u16_std_hashmap_low_load(b: &mut test::Bencher) {
-        let low = test::black_box(0_u16);
-        let high = test::black_box(LOW_LOAD_BATCH_SIZE as u16);
-        b.iter(|| {
-            let mut map = HashMap::new();
-            for i in low..high {
-                map.insert(i, i);
-            }
-            for i in low..high {
-                assert_eq!(map.get(&i), Some(&i));
-            }
-        })
-    }
-
-    #[bench]
-    fn bench_u16_indexmap_low_load(b: &mut test::Bencher) {
-        let low = test::black_box(0_u16);
-        let high = test::black_box(LOW_LOAD_BATCH_SIZE as u16);
-        b.iter(|| {
-            let mut map = IndexMap::new();
-            for i in low..high {
-                map.insert(i, i);
-            }
-            for i in low..high {
-                assert_eq!(map.get(&i), Some(&i));
-            }
-        })
-    }
-
-    #[bench]
-    fn bench_u32_vec_primitive_map_low_load(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u32, LOW_LOAD_BATCH_SIZE as u32,
-            VecPrimitiveMap::with_capacity(LOW_LOAD_BATCH_SIZE),
-            b
-        );
-    }
-
-    #[bench]
-    fn bench_u32_array_primitive_map_low_load(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u32, LOW_LOAD_BATCH_SIZE as u32,
-            ArrayPrimitiveMap::with_buckets(Array1024::initialized()),
-            b
-        );
-    }
-
-    #[bench]
-    fn bench_u32_linear_primitive_map_low_load(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u32, LOW_LOAD_BATCH_SIZE as u32,
-            LinearPrimitiveMap::with_buckets(Array1024::initialized()),
-            b
-        );
-    }
-
-    #[bench]
-    fn bench_u32_std_hashmap_low_load(b: &mut test::Bencher) {
-        let low = test::black_box(0_u32);
-        let high = test::black_box(LOW_LOAD_BATCH_SIZE as u32);
-        b.iter(|| {
-            let mut map = HashMap::new();
-            for i in low..high {
-                map.insert(i, i);
-            }
-            for i in low..high {
-                assert_eq!(map.get(&i), Some(&i));
-            }
-        })
-    }
-
-    #[bench]
-    fn bench_u32_indexmap_low_load(b: &mut test::Bencher) {
-        let low = test::black_box(0_u32);
-        let high = test::black_box(LOW_LOAD_BATCH_SIZE as u32);
-        b.iter(|| {
-            let mut map = IndexMap::new();
-            for i in low..high {
-                map.insert(i, i);
-            }
-            for i in low..high {
-                assert_eq!(map.get(&i), Some(&i));
-            }
-        })
-    }
-
-    #[bench]
-    fn bench_u64_vec_primitive_map_low_load(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u64, LOW_LOAD_BATCH_SIZE as u64,
-            VecPrimitiveMap::with_capacity(LOW_LOAD_BATCH_SIZE),
-            b
-        );
-    }
-
-    #[bench]
-    fn bench_u64_array_primitive_map_low_load(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u64, LOW_LOAD_BATCH_SIZE as u64,
-            ArrayPrimitiveMap::with_buckets(Array1024::initialized()),
-            b
-        );
-    }
-
-    #[bench]
-    fn bench_u64_linear_primitive_map_low_load(b: &mut test::Bencher) {
-        bench_generic_pmap(
-            0_u64, LOW_LOAD_BATCH_SIZE as u64,
-            LinearPrimitiveMap::with_buckets(Array1024::initialized()),
-            b
-        );
-    }
-
-    #[bench]
-    fn bench_u64_std_hashmap_low_load(b: &mut test::Bencher) {
-        let low = test::black_box(0_u64);
-        let high = test::black_box(LOW_LOAD_BATCH_SIZE as u64);
-        b.iter(|| {
-            let mut map = HashMap::new();
-            for i in low..high {
-                map.insert(i, i);
-            }
-            for i in low..high {
-                assert_eq!(map.get(&i), Some(&i));
-            }
-        })
-    }
-
-    #[bench]
-    fn bench_u64_indexmap_low_load(b: &mut test::Bencher) {
-        let low = test::black_box(0_u64);
-        let high = test::black_box(LOW_LOAD_BATCH_SIZE as u64);
-        b.iter(|| {
-            let mut map = IndexMap::new();
-            for i in low..high {
-                map.insert(i, i);
-            }
-            for i in low..high {
-                assert_eq!(map.get(&i), Some(&i));
-            }
-        })
-    }
+fn pmap_fun<K: Key + Copy + Step + Debug + 'static, B: Bucket<K, K> + 'static, BL: BucketStore<K, K, B> + Clone + 'static, H: Hasher<K> + 'static>(name: &'static str, map: PrimitiveMap<K, K, B, BL, H>) -> Fun<(K, K)> {
+    Fun::new(name, move |b, &(low, high)| b.iter(|| {
+        let mut map = map.clone();
+        for i in low..high {
+            map.insert(i, i);
+        }
+        for i in low..high {
+            assert_eq!(map.get(i), Some(&i));
+        }
+    }))
 }
+
+fn indexmap_fun<K: std::hash::Hash + Eq + Copy + Step + Debug + 'static>(name: &'static str, map: IndexMap<K, K>) -> Fun<(K, K)> {
+    Fun::new(name, move |b, &(low, high)| b.iter(|| {
+        let mut map = map.clone();
+        for i in low..high {
+            map.insert(i, i);
+        }
+        for i in low..high {
+            assert_eq!(map.get(&i), Some(&i));
+        }
+    }))
+}
+
+fn std_hashmap_fun<K: std::hash::Hash + Eq + Copy + Step + Debug + 'static>(name: &'static str, map: HashMap<K, K>) -> Fun<(K, K)> {
+    Fun::new(name, move |b, &(low, high)| b.iter(|| {
+        let mut map = map.clone();
+        for i in low..high {
+            map.insert(i, i);
+        }
+        for i in low..high {
+            assert_eq!(map.get(&i), Some(&i));
+        }
+    }))
+}
+
+fn bench_u8(c: &mut Criterion) {
+    let low = black_box(0);
+    let high = black_box(u8::MAX);
+    c.bench_functions(
+        &format!("Key: u8, Capacity: {}, Load: {}", u8::MAX, u8::MAX),
+        vec![
+            pmap_fun("VecPrimitiveMap", VecPrimitiveMap::with_capacity(u8::MAX as usize)),
+            pmap_fun("ArrayPrimitiveMap", ArrayPrimitiveMap::with_buckets(Array256::initialized())),
+            pmap_fun("LinearPrimitiveMap", LinearPrimitiveMap::with_buckets(Array256::initialized())),
+            indexmap_fun("IndexMap", IndexMap::with_capacity(u8::MAX as usize)),
+            std_hashmap_fun("StdHashMap", HashMap::with_capacity(u8::MAX as usize)),
+        ],
+        (low, high)
+    );
+}
+
+fn bench_u16(c: &mut Criterion) {
+    let low = black_box(0);
+    let high = black_box(u16::MAX);
+    c.bench_functions(
+        &format!("Key: u16, Capacity: {}, Load: {}", u16::MAX, u16::MAX),
+        vec![
+            pmap_fun("VecPrimitiveMap", VecPrimitiveMap::with_capacity(u16::MAX as usize)),
+            indexmap_fun("IndexMap", IndexMap::with_capacity(u16::MAX as usize)),
+            std_hashmap_fun("StdHashMap", HashMap::with_capacity(u16::MAX as usize)),
+        ],
+        (low, high)
+    );
+}
+
+fn bench_u16_low_load(c: &mut Criterion) {
+    let low = black_box(0);
+    let high = black_box(LOW_LOAD_BATCH_SIZE as u16);
+    c.bench_functions(
+        &format!("Key: u16, Capacity: {}, Load: {}", LOW_LOAD_MAP_SIZE, LOW_LOAD_BATCH_SIZE),
+        vec![
+            pmap_fun("VecPrimitiveMap", VecPrimitiveMap::with_capacity(LOW_LOAD_MAP_SIZE as usize)),
+            pmap_fun("ArrayPrimitiveMap", ArrayPrimitiveMap::with_buckets(Array1024::initialized())),
+            pmap_fun("LinearPrimitiveMap", LinearPrimitiveMap::with_buckets(Array1024::initialized())),
+            indexmap_fun("IndexMap", IndexMap::with_capacity(LOW_LOAD_MAP_SIZE as usize)),
+            std_hashmap_fun("StdHashMap", HashMap::with_capacity(LOW_LOAD_MAP_SIZE as usize)),
+        ],
+        (low, high)
+    );
+}
+
+fn bench_u16_overload(c: &mut Criterion) {
+    let low = black_box(0);
+    let high = black_box(OVERLOAD_BATCH_SIZE as u16);
+    c.bench_functions(
+        &format!("Key: u16, Capacity: {}, Load: {}", OVERLOAD_MAP_SIZE, OVERLOAD_BATCH_SIZE),
+        vec![
+            pmap_fun("VecPrimitiveMap", VecPrimitiveMap::with_capacity(OVERLOAD_MAP_SIZE as usize)),
+            pmap_fun("ArrayPrimitiveMap", ArrayPrimitiveMap::with_buckets(Array256::initialized())),
+            indexmap_fun("IndexMap", IndexMap::with_capacity(OVERLOAD_MAP_SIZE as usize)),
+            std_hashmap_fun("StdHashMap", HashMap::with_capacity(OVERLOAD_MAP_SIZE as usize)),
+        ],
+        (low, high)
+    );
+}
+
+fn bench_u32_low_load(c: &mut Criterion) {
+    let low = black_box(0);
+    let high = black_box(LOW_LOAD_BATCH_SIZE as u32);
+    c.bench_functions(
+        &format!("Key: u32, Capacity: {}, Load: {}", LOW_LOAD_MAP_SIZE, LOW_LOAD_BATCH_SIZE),
+        vec![
+            pmap_fun("VecPrimitiveMap", VecPrimitiveMap::with_capacity(LOW_LOAD_MAP_SIZE as usize)),
+            pmap_fun("ArrayPrimitiveMap", ArrayPrimitiveMap::with_buckets(Array1024::initialized())),
+            pmap_fun("LinearPrimitiveMap", LinearPrimitiveMap::with_buckets(Array1024::initialized())),
+            indexmap_fun("IndexMap", IndexMap::with_capacity(LOW_LOAD_MAP_SIZE as usize)),
+            std_hashmap_fun("StdHashMap", HashMap::with_capacity(LOW_LOAD_MAP_SIZE as usize)),
+        ],
+        (low, high)
+    );
+}
+
+fn bench_u32_overload(c: &mut Criterion) {
+    let low = black_box(0);
+    let high = black_box(OVERLOAD_BATCH_SIZE as u32);
+    c.bench_functions(
+        &format!("Key: u32, Capacity: {}, Load: {}", OVERLOAD_MAP_SIZE, OVERLOAD_BATCH_SIZE),
+        vec![
+            pmap_fun("VecPrimitiveMap", VecPrimitiveMap::with_capacity(OVERLOAD_MAP_SIZE as usize)),
+            pmap_fun("ArrayPrimitiveMap", ArrayPrimitiveMap::with_buckets(Array256::initialized())),
+            indexmap_fun("IndexMap", IndexMap::with_capacity(OVERLOAD_MAP_SIZE as usize)),
+            std_hashmap_fun("StdHashMap", HashMap::with_capacity(OVERLOAD_MAP_SIZE as usize)),
+        ],
+        (low, high)
+    );
+}
+
+fn bench_u64_low_load(c: &mut Criterion) {
+    let low = black_box(0);
+    let high = black_box(LOW_LOAD_BATCH_SIZE as u64);
+    c.bench_functions(
+        &format!("Key: u64, Capacity: {}, Load: {}", LOW_LOAD_MAP_SIZE, LOW_LOAD_BATCH_SIZE),
+        vec![
+            pmap_fun("VecPrimitiveMap", VecPrimitiveMap::with_capacity(LOW_LOAD_MAP_SIZE as usize)),
+            pmap_fun("ArrayPrimitiveMap", ArrayPrimitiveMap::with_buckets(Array1024::initialized())),
+            pmap_fun("LinearPrimitiveMap", LinearPrimitiveMap::with_buckets(Array1024::initialized())),
+            indexmap_fun("IndexMap", IndexMap::with_capacity(LOW_LOAD_MAP_SIZE as usize)),
+            std_hashmap_fun("StdHashMap", HashMap::with_capacity(LOW_LOAD_MAP_SIZE as usize)),
+        ],
+        (low, high)
+    );
+}
+
+fn bench_u64_overload(c: &mut Criterion) {
+    let low = black_box(0);
+    let high = black_box(OVERLOAD_BATCH_SIZE as u64);
+    c.bench_functions(
+        &format!("Key: u64, Capacity: {}, Load: {}", OVERLOAD_MAP_SIZE, OVERLOAD_BATCH_SIZE),
+        vec![
+            pmap_fun("VecPrimitiveMap", VecPrimitiveMap::with_capacity(OVERLOAD_MAP_SIZE as usize)),
+            pmap_fun("ArrayPrimitiveMap", ArrayPrimitiveMap::with_buckets(Array256::initialized())),
+            indexmap_fun("IndexMap", IndexMap::with_capacity(OVERLOAD_MAP_SIZE as usize)),
+            std_hashmap_fun("StdHashMap", HashMap::with_capacity(OVERLOAD_MAP_SIZE as usize)),
+        ],
+        (low, high)
+    );
+}
+
+
+criterion_group!(benches, bench_u8, bench_u16);
+criterion_group!(benches_low_load, bench_u16_low_load, bench_u32_low_load, bench_u64_low_load);
+criterion_group!(benches_overload, bench_u16_overload, bench_u32_overload, bench_u64_overload);
+criterion_main!(benches, benches_low_load, benches_overload);

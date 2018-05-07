@@ -20,3 +20,9 @@ smallvec = "0.6"
 
 [dev-dependencies]
 indexmap = "1.0"
+criterion = "0.2"
+
+[[bench]]
+name = "bench"
+harness = false
+
