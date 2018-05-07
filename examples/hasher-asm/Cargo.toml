@@ -1,0 +1,7 @@
+[package]
+name = "hasher-asm"
+version = "0.1.0"
+authors = ["Mike Lubinets <lubinetsm@yandex.ru>"]
+
+[dependencies]
+primitivemap = { path = "../../" }
