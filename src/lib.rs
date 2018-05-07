@@ -105,7 +105,8 @@ where
     BL: BucketList<K, V, B>,
     H: Hasher<K>,
 {
-    pub fn insert(&mut self, key: K, value: V) {
+    pub fn insert(&mut self, key: K, value: V) -> Option<V> {
+        unimplemented!();
         let addr = self.get_addr(key);
         let bucket = self.buckets
             .search_mut(addr, |bucket| !bucket.reached_max_capacity())
@@ -121,6 +122,69 @@ where
             .search(addr, |bucket| bucket.get(key).is_some());
 
         bucket.and_then(|b| b.get(key))
+    }
+
+    pub fn get_mut(&mut self, key: K) -> Option<&V> {
+        unimplemented!()
+    }
+
+    pub fn get_key_value(&self, key: K) -> Option<(K, &V)> {
+        unimplemented!()
+    }
+
+    pub fn remove(&mut self, key: K) -> Option<V> {
+        unimplemented!()
+    }
+
+    pub fn remove_entry(&mut self, key: K) -> Option<(K, V)> {
+        unimplemented!()
+    }
+
+    pub fn retain<F>(&mut self, f: F)
+    where
+        F: FnMut(&K, &mut V) -> bool
+    {
+        unimplemented!()
+    }
+
+    pub fn contains_key(&self, key: K) -> bool {
+        unimplemented!()
+    }
+
+    pub fn keys(&self) -> impl Iterator<Item = K> {
+        unimplemented!()
+    }
+
+    pub fn values(&self) -> impl Iterator<Item = &V> {
+        unimplemented!()
+    }
+
+    pub fn values_mut(&self) -> impl Iterator<Item = &mut V> {
+        unimplemented!()
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = (K, &V)> {
+        unimplemented!()
+    }
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = (K, &mut V)> {
+        unimplemented!()
+    }
+
+    pub fn len(&self) -> usize {
+        unimplemented!()
+    }
+
+    pub fn is_empty(&self) -> usize {
+        unimplemented!()
+    }
+
+    pub fn drain(&mut self) -> impl Iterator<Item = (K, V)> {
+        unimplemented!()
+    }
+
+    pub fn clear(&mut self) {
+        unimplemented!()
     }
 
     fn get_addr(&self, key: K) -> usize {
