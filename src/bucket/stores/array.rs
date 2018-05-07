@@ -13,7 +13,7 @@ macro_rules! impl_bucket_list_for_array {
             _marker: PhantomData<(K, V)>,
         }
 
-        impl<K: Key, V: Value, B: Bucket<K, V>> BucketStoreNew<K, V, B> for $name<K, V, B> {
+        impl<K: Key, V: Value, B: Bucket<K, V> + 'static> BucketStoreNew<K, V, B> for $name<K, V, B> {
             fn initialized() -> Self {
                 unsafe {
                     let mut array: [B; $size] = mem::uninitialized();

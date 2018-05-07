@@ -30,6 +30,7 @@ pub trait BucketStore<K: Key, V: Value, B: Bucket<K, V>> {
     fn get(&self, idx: usize) -> &B;
     fn get_mut(&mut self, idx: usize) -> &mut B;
     // TODO: Add default implementation that uses get & get_mut
-    fn search<P: Fn(&B) -> bool>(&self, start_idx: usize, predicate: P) -> Option<&B>;
-    fn search_mut<P: Fn(&B) -> bool>(&mut self, start_idx: usize, predicate: P) -> Option<&mut B>;
+    fn search_bucket<P: Fn(&B) -> bool>(&mut self, start_idx: usize, predicate: P) -> Option<&mut B>;
+    fn search_entry(&self, start_idx: usize, key: K) -> Option<(K, &V)>;
+    fn search_entry_mut(&mut self, start_idx: usize, key: K) -> Option<(K, &mut V)>;
 }

@@ -1,3 +1,4 @@
+#![feature(nll)]
 extern crate smallvec;
 
 pub mod bucket;
@@ -108,29 +109,21 @@ where
     pub fn insert(&mut self, key: K, value: V) -> Option<V> {
         let addr = self.get_addr(key);
         let bucket = self.buckets
-            .search_mut(addr, |bucket| !bucket.reached_max_capacity())
+            .search_bucket(addr, |bucket| !bucket.reached_max_capacity())
             .expect("PrimitiveMap capacity is exhausted");
         bucket.insert(key, value)
     }
 
     pub fn get(&self, key: K) -> Option<&V> {
         let addr = self.get_addr(key);
-
-        // TODO: optimize double-work here
-        let bucket = self.buckets
-            .search(addr, |bucket| bucket.get(key).is_some());
-
-        bucket.and_then(|b| b.get(key))
+        self.buckets.search_entry(addr, key)
+            .map(|(_, v)| v)
     }
 
     pub fn get_mut(&mut self, key: K) -> Option<&mut V> {
         let addr = self.get_addr(key);
-
-        // TODO: optimize double-work here
-        let bucket = self.buckets
-            .search_mut(addr, |bucket| bucket.get(key).is_some());
-
-        bucket.and_then(|b| b.get_mut(key))
+        self.buckets.search_entry_mut(addr, key)
+            .map(|(_, v)| v)
     }
 
     pub fn get_key_value(&self, key: K) -> Option<(K, &V)> {
