@@ -150,7 +150,7 @@ where
     pub fn contains_key(&self, key: K) -> bool {
         unimplemented!()
     }
-
+/*
     pub fn keys(&self) -> impl Iterator<Item = K> {
         unimplemented!()
     }
@@ -186,6 +186,7 @@ where
     pub fn clear(&mut self) {
         unimplemented!()
     }
+    */
 
     fn get_addr(&self, key: K) -> usize {
         let hash = H::hash(key);
