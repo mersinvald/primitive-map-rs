@@ -31,8 +31,9 @@ impl<K: Key, V: Value, B: Bucket<K, V> + 'static> BucketStore<K, V, B> for [B] {
     fn search_bucket<P: Fn(&B) -> bool>(&mut self, start_idx: usize, predicate: P) -> Option<&mut B> {
         for i in WrappingIndexIterator::new(start_idx, self.len()) {
             // It is safe here as we do not have indexes outside of [0; len)
-            if predicate(unsafe {self.get_unchecked_mut(i)}) {
-                return Some(unsafe{self.get_unchecked_mut(i)});
+            let bucket = unsafe { self.get_unchecked_mut(i) };
+            if predicate(bucket) {
+                return Some(bucket);
             }
         }
 
