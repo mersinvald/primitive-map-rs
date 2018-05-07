@@ -32,8 +32,23 @@ impl<K: Key, V: Value> Bucket<K, V> for VecBucket<K, V> {
     }
 
     #[inline]
+    fn remove_entry(&mut self, key: K) -> Option<(K, V)> {
+        self.index_of(key).map(|idx| self.swap_remove(idx))
+    }
+
+    #[inline]
     fn reached_max_capacity(&self) -> bool {
         false
+    }
+
+    #[inline]
+    fn len(&self) -> usize {
+        VecBucket::len(self)
+    }
+
+    #[inline]
+    fn clear(&mut self) {
+        VecBucket::clear(self)
     }
 }
 
@@ -46,4 +61,3 @@ impl<K: Key, V: Value> IndexOf<K> for VecBucket<K, V> {
             .map(|(idx, _)| idx)
     }
 }
-

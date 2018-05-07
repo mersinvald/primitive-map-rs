@@ -25,14 +25,14 @@ mod tests {
     #[test]
     fn vec_bucket_list_with_flat_bucket() {
         let mut bl = vec![Some((1, 1)), Some((2, 2))];
-        let bucket = bl.search_bucket(1, |bucket| bucket.map(|(k, _v)| k == 1).unwrap_or(false));
+        let bucket = bl.search_bucket(1, |bucket| bucket.map(|entry| entry.0 == 1).unwrap_or(false));
         assert_eq!(bucket.unwrap().unwrap(), (1, 1));
     }
 
     #[test]
     fn vec_bucket_list_with_vec_bucket() {
         let mut bl = vec![vec![(1, 1), (2, 2)], vec![(3, 3)]];
-        let bucket = bl.search_bucket(1, |bucket| bucket.iter().any(|(k, _v)| *k == 2));
+        let bucket = bl.search_bucket(1, |bucket| bucket.iter().any(|entry| entry.0 == 2));
         assert_eq!(bucket.unwrap(), &vec![(1, 1), (2, 2)]);
     }
 }

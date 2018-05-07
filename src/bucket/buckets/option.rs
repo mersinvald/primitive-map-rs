@@ -2,8 +2,9 @@ use bucket::Bucket;
 use kv::{Key, Value};
 use smallvec::SmallVec;
 use std::marker::PhantomData;
-use std::usize;
 use std::mem;
+use std::usize;
+use unreachable::UncheckedOptionExt;
 
 pub type OptionBucket<K, V> = Option<(K, V)>;
 
@@ -33,5 +34,22 @@ impl<K: Key, V: Value> Bucket<K, V> for OptionBucket<K, V> {
     #[inline]
     fn reached_max_capacity(&self) -> bool {
         self.is_some()
+    }
+
+    #[inline]
+    fn len(&self) -> usize {
+        if self.is_some() {
+            1
+        } else {
+            0
+        }
+    }
+
+    fn remove_entry(&mut self, key: K) -> Option<(K, V)> {
+        self.take()
+    }
+
+    fn clear(&mut self) {
+        *self = None;
     }
 }

@@ -35,4 +35,17 @@ impl<K: Key, V: Value> Bucket<K, V> for BTreeBucket<K, V> {
     fn reached_max_capacity(&self) -> bool {
         false
     }
+
+    #[inline]
+    fn len(&self) -> usize {
+        BTreeBucket::len(self)
+    }
+
+    fn remove_entry(&mut self, key: K) -> Option<(K, V)> {
+        self.remove(&key).map(|v| (key, v))
+    }
+
+    fn clear(&mut self) {
+        BTreeMap::clear(self)
+    }
 }

@@ -30,8 +30,8 @@ macro_rules! impl_bucket_list_for_array {
                 }
             }
 
-            fn initialized_with_capacity(_: usize) -> Self {
-                panic!("{} is static on-stack structure, thus it has no capacity configureble in runtime. `initialized` should be used instead.", stringify!($name));
+            fn initialized_with_capacity(cap: usize) -> Self {
+                panic!("invalid capacity({}): {} is static on-stack structure, thus it has no capacity configureble in runtime. `initialized` should be used instead.", cap, stringify!($name));
             }
         }
 

@@ -36,6 +36,21 @@ macro_rules! impl_bucket_for_small_vec {
             fn reached_max_capacity(&self) -> bool {
                 false
             }
+
+            #[inline]
+            fn len(&self) -> usize {
+                $name::len(self)
+            }
+
+            #[inline]
+            fn clear(&mut self) {
+                $name::clear(self)
+            }
+
+            #[inline]
+            fn remove_entry(&mut self, key: K) -> Option<(K, V)> {
+                self.index_of(key).map(|idx| self.swap_remove(idx))
+            }
         }
 
         impl<K: Key, V: Value> IndexOf<K> for $name<K, V> {

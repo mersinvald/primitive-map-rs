@@ -1,4 +1,3 @@
-pub mod vec;
 pub mod array;
 
 pub use self::array::*;
@@ -66,7 +65,6 @@ impl<K: Key, V: Value, B: Bucket<K, V> + 'static> BucketStore<K, V, B> for [B] {
         None
     }
 }
-
 
 impl<T, K: Key, V: Value, B: Bucket<K, V> + 'static> BucketStore<K, V, B> for T
     where

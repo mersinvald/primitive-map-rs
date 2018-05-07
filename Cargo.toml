@@ -17,6 +17,7 @@ is-it-maintained-open-issues = { repository = "https://github.com/mersinvald/pri
 
 [dependencies]
 smallvec = "0.6"
+unreachable = "1.0.0"
 
 [dev-dependencies]
 indexmap = "1.0"
