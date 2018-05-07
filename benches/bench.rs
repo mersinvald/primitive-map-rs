@@ -10,7 +10,7 @@ mod tests {
     use primitivemap::bucket::{Array256, Array1024};
     use primitivemap::kv::Key;
     use primitivemap::Hasher;
-    use primitivemap::{Bucket, BucketList, BucketListNew};
+    use primitivemap::{Bucket, BucketStore, BucketStoreNew};
 
     use indexmap::IndexMap;
     use std::{collections::HashMap, u16, u32, u64, u8};
@@ -20,7 +20,7 @@ mod tests {
 
     use std::iter::Step;
     use std::fmt::Debug;
-    fn bench_generic_pmap<T: Key + Step + Debug, B: Bucket<T, T>, BL: BucketList<T, T, B> + Clone, H: Hasher<T>>(low:T, high: T, map: PrimitiveMap<T, T, B, BL, H>, b: &mut test::Bencher) {
+    fn bench_generic_pmap<T: Key + Step + Debug, B: Bucket<T, T>, BL: BucketStore<T, T, B> + Clone, H: Hasher<T>>(low:T, high: T, map: PrimitiveMap<T, T, B, BL, H>, b: &mut test::Bencher) {
         let low = test::black_box(low);
         let high = test::black_box(high);
         b.iter(|| {

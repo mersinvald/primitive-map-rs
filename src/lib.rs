@@ -6,7 +6,7 @@ pub mod kv;
 
 use std::marker::PhantomData;
 
-pub use bucket::{Bucket, BucketList, BucketListNew, OptionBucket, SmallVecBucket1, SmallVecBucket4, VecBucket};
+pub use bucket::{Bucket, BucketStore, BucketStoreNew, OptionBucket, SmallVecBucket1, SmallVecBucket4, VecBucket};
 pub use hash::{DefaultHasher, Hash, Hasher};
 pub use kv::{Key, Value};
 
@@ -14,7 +14,7 @@ pub struct PrimitiveMap<
     K: Key,
     V: Value,
     B: Bucket<K, V> = SmallVecBucket1<K, V>,
-    BL: BucketList<K, V, B> = Vec<B>,
+    BL: BucketStore<K, V, B> = Vec<B>,
     H: Hasher<K> = DefaultHasher<K>,
 > {
     buckets: BL,
@@ -26,7 +26,7 @@ where
     K: Key,
     V: Value,
     B: Bucket<K, V> + Clone,
-    BL: BucketList<K, V, B> + Clone,
+    BL: BucketStore<K, V, B> + Clone,
     H: Hasher<K> + Default,
 {
     fn clone(&self) -> Self {
@@ -56,7 +56,7 @@ where
     K: Key,
     V: Value,
     B: Bucket<K, V>,
-    BL: BucketList<K, V, B> + BucketListNew<K, V, B>,
+    BL: BucketStore<K, V, B> + BucketStoreNew<K, V, B>,
     H: Hasher<K>,
 {
     pub fn new() -> Self {
@@ -73,7 +73,7 @@ where
     K: Key,
     V: Value,
     B: Bucket<K, V>,
-    BL: BucketList<K, V, B>,
+    BL: BucketStore<K, V, B>,
     DefaultHasher<K>: Hasher<K>,
 {
     pub fn with_buckets(buckets: BL) -> Self {
@@ -86,7 +86,7 @@ where
     K: Key,
     V: Value,
     B: Bucket<K, V>,
-    BL: BucketList<K, V, B>,
+    BL: BucketStore<K, V, B>,
     H: Hasher<K>,
 {
     pub fn custom(buckets: BL, _: H) -> Self {
@@ -102,16 +102,15 @@ where
     K: Key,
     V: Value,
     B: Bucket<K, V>,
-    BL: BucketList<K, V, B>,
+    BL: BucketStore<K, V, B>,
     H: Hasher<K>,
 {
     pub fn insert(&mut self, key: K, value: V) -> Option<V> {
-        unimplemented!();
         let addr = self.get_addr(key);
         let bucket = self.buckets
             .search_mut(addr, |bucket| !bucket.reached_max_capacity())
             .expect("PrimitiveMap capacity is exhausted");
-        bucket.push(key, value)
+        bucket.insert(key, value)
     }
 
     pub fn get(&self, key: K) -> Option<&V> {
@@ -124,8 +123,14 @@ where
         bucket.and_then(|b| b.get(key))
     }
 
-    pub fn get_mut(&mut self, key: K) -> Option<&V> {
-        unimplemented!()
+    pub fn get_mut(&mut self, key: K) -> Option<&mut V> {
+        let addr = self.get_addr(key);
+
+        // TODO: optimize double-work here
+        let bucket = self.buckets
+            .search_mut(addr, |bucket| bucket.get(key).is_some());
+
+        bucket.and_then(|b| b.get_mut(key))
     }
 
     pub fn get_key_value(&self, key: K) -> Option<(K, &V)> {
