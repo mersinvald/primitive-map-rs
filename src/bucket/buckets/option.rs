@@ -3,6 +3,7 @@ use kv::{Key, Value};
 use smallvec::SmallVec;
 use std::marker::PhantomData;
 use std::usize;
+use std::mem;
 
 pub type OptionBucket<K, V> = Option<(K, V)>;
 
@@ -14,9 +15,9 @@ impl<K: Key, V: Value> Bucket<K, V> for OptionBucket<K, V> {
 
     #[inline]
     fn insert(&mut self, key: K, value: V) -> Option<V> {
-        let old_value = self.take().map(|(_, v)| v);
-        *self = Some((key, value));
-        old_value
+        let mut new_entry = Some((key, value));
+        mem::swap(self, &mut new_entry);
+        new_entry.map(|(_, v)| v)
     }
 
     #[inline]
