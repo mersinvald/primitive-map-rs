@@ -8,7 +8,8 @@ pub mod kv;
 
 use std::marker::PhantomData;
 
-pub use bucket::{Bucket, BucketStore, BucketStoreNew, OptionBucket, SmallVecBucket1, SmallVecBucket4, VecBucket};
+pub use bucket::{Bucket, BucketStore, BucketStoreNew, OptionBucket, SmallVecBucket1,
+                 SmallVecBucket4, VecBucket};
 pub use hash::{DefaultHasher, Hash, Hasher};
 pub use kv::{Key, Value};
 
@@ -32,10 +33,7 @@ where
     H: Hasher<K> + Default,
 {
     fn clone(&self) -> Self {
-        PrimitiveMap::custom(
-            self.buckets.clone(),
-            H::default()
-        )
+        PrimitiveMap::custom(self.buckets.clone(), H::default())
     }
 }
 
@@ -196,7 +194,8 @@ where
     }
 
     pub fn keys(&'a self) -> impl Iterator<Item = K> + 'a {
-        self.buckets().flat_map(|b| b.into_iter().map(|entry| entry.0))
+        self.buckets()
+            .flat_map(|b| b.into_iter().map(|entry| entry.0))
     }
 
     pub fn iter(&'a self) -> impl Iterator<Item = &'a (K, V)> + 'a {

@@ -1,11 +1,6 @@
-pub mod vec;
+pub mod btreemap;
 pub mod option;
 pub mod smallvec;
-pub mod btreemap;
+pub mod vec;
 
-pub use self::{
-    vec::VecBucket,
-    option::OptionBucket,
-    btreemap::BTreeBucket,
-    smallvec::*,
-};
+pub use self::{btreemap::BTreeBucket, option::OptionBucket, smallvec::*, vec::VecBucket};

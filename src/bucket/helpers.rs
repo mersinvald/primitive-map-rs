@@ -45,7 +45,6 @@ impl Iterator for WrappingIndexIterator {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,9 +1,9 @@
-use bucket::{BucketStore, BucketStoreNew, Bucket, DEFAULT_BUCKETS_COUNT};
+use bucket::{Bucket, BucketStore, BucketStoreNew, DEFAULT_BUCKETS_COUNT};
 use kv::{Key, Value};
 use smallvec::SmallVec;
 use std::marker::PhantomData;
-use std::usize;
 use std::mem;
+use std::usize;
 
 macro_rules! impl_bucket_list_for_array {
     ($name:ident, $size:expr) => {

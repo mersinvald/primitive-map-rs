@@ -1,10 +1,10 @@
-use std::collections::BTreeMap;
 use bucket::Bucket;
 use kv::{Key, Value};
 use smallvec::SmallVec;
+use std::collections::BTreeMap;
 use std::marker::PhantomData;
-use std::usize;
 use std::mem;
+use std::usize;
 
 use bucket::helpers::IndexOf;
 

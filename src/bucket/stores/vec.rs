@@ -1,11 +1,11 @@
+use bucket::{Bucket, BucketStoreNew, DEFAULT_BUCKETS_COUNT};
 use kv::{Key, Value};
-use bucket::{DEFAULT_BUCKETS_COUNT, BucketStoreNew, Bucket};
 
 impl<K, V, B> BucketStoreNew<K, V, B> for Vec<B>
-    where
-        K: Key,
-        V: Value,
-        B: Bucket<K, V> + 'static,
+where
+    K: Key,
+    V: Value,
+    B: Bucket<K, V> + 'static,
 {
     fn initialized() -> Self {
         Self::initialized_with_capacity(DEFAULT_BUCKETS_COUNT)
@@ -25,7 +25,9 @@ mod tests {
     #[test]
     fn vec_bucket_list_with_flat_bucket() {
         let mut bl = vec![Some((1, 1)), Some((2, 2))];
-        let bucket = bl.search_bucket(1, |bucket| bucket.map(|entry| entry.0 == 1).unwrap_or(false));
+        let bucket = bl.search_bucket(1, |bucket| {
+            bucket.map(|entry| entry.0 == 1).unwrap_or(false)
+        });
         assert_eq!(bucket.unwrap().unwrap(), (1, 1));
     }
 

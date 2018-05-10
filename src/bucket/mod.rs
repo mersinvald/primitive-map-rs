@@ -39,7 +39,9 @@ pub trait Bucket<K: Key, V: Value>: Sized + Clone {
     fn reached_max_capacity(&self) -> bool;
 }
 
-pub trait BucketStoreNew<K: Key, V: Value, B: Bucket<K, V> + 'static>: BucketStore<K, V, B> {
+pub trait BucketStoreNew<K: Key, V: Value, B: Bucket<K, V> + 'static>:
+    BucketStore<K, V, B>
+{
     fn initialized() -> Self;
     fn initialized_with_capacity(cap: usize) -> Self;
 }
