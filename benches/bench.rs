@@ -18,10 +18,15 @@ use std::{u16, u64, u8};
 use indexmap::IndexMap;
 use std::collections::HashMap;
 
-const LOW_LOAD_MAP_SIZE: usize = 1024;
-const LOW_LOAD_BATCH_SIZE: usize = 256;
-const OVERLOAD_MAP_SIZE: usize = 256;
-const OVERLOAD_BATCH_SIZE: usize = 8192;
+const U8_CAP: usize = u8::max_value() as usize;
+const U8_MAX: u8 = u8::max_value();
+const U16_CAP: usize = u16::max_value() as usize;
+const U16_MAX: u16 = u16::max_value();
+
+const LOW_LOAD_CAP: usize = 1024;
+const LOW_LOAD_MAX: usize = 256;
+const OVERLOAD_CAP: usize = 256;
+const OVERLOAD_MAX: usize = 8192;
 
 use std::fmt::Debug;
 use std::iter::Step;
@@ -150,15 +155,16 @@ fn std_hashmap_fun_get<K: std::hash::Hash + Eq + Copy + Step + Debug + 'static>(
     })
 }
 
+
 fn bench_u8(c: &mut Criterion) {
     let low = black_box(0);
-    let high = black_box(u8::MAX);
+    let high = black_box(U8_MAX);
     c.bench_functions(
-        &format!("Key: u8, Capacity: {}, Load: {}", u8::MAX, u8::MAX),
+        &format!("Key: u8, Capacity: {}, Load: {}", U8_CAP, U8_MAX),
         vec![
             pmap_fun_insert(
                 "VecPrimitiveMap [INSERT]",
-                VecPrimitiveMap::with_capacity(u8::MAX as usize),
+                VecPrimitiveMap::with_capacity(U8_CAP),
             ),
             pmap_fun_insert(
                 "ArrayPrimitiveMap [INSERT]",
@@ -170,15 +176,15 @@ fn bench_u8(c: &mut Criterion) {
             ),
             indexmap_fun_insert(
                 "IndexMap [INSERT]",
-                IndexMap::with_capacity(u8::MAX as usize),
+                IndexMap::with_capacity(U8_CAP),
             ),
             std_hashmap_fun_insert(
                 "StdHashMap [INSERT]",
-                HashMap::with_capacity(u8::MAX as usize),
+                HashMap::with_capacity(U8_CAP),
             ),
             pmap_fun_get(
                 "VecPrimitiveMap [GET]",
-                VecPrimitiveMap::with_capacity(u8::MAX as usize),
+                VecPrimitiveMap::with_capacity(U8_CAP),
             ),
             pmap_fun_get(
                 "ArrayPrimitiveMap [GET]",
@@ -188,8 +194,8 @@ fn bench_u8(c: &mut Criterion) {
                 "LinearPrimitiveMap [GET]",
                 LinearPrimitiveMap::with_buckets(Array256::initialized()),
             ),
-            indexmap_fun_get("IndexMap [GET]", IndexMap::with_capacity(u8::MAX as usize)),
-            std_hashmap_fun_get("StdHashMap [GET]", HashMap::with_capacity(u8::MAX as usize)),
+            indexmap_fun_get("IndexMap [GET]", IndexMap::with_capacity(U8_CAP)),
+            std_hashmap_fun_get("StdHashMap [GET]", HashMap::with_capacity(U8_CAP)),
         ],
         (low, high),
     );
@@ -197,30 +203,30 @@ fn bench_u8(c: &mut Criterion) {
 
 fn bench_u16(c: &mut Criterion) {
     let low = black_box(0);
-    let high = black_box(u16::MAX);
+    let high = black_box(U16_MAX);
     c.bench_functions(
-        &format!("Key: u16, Capacity: {}, Load: {}", u16::MAX, u16::MAX),
+        &format!("Key: u16, Capacity: {}, Load: {}", U16_CAP, U16_MAX),
         vec![
             pmap_fun_insert(
                 "VecPrimitiveMap [INSERT]",
-                VecPrimitiveMap::with_capacity(u16::MAX as usize),
+                VecPrimitiveMap::with_capacity(U16_CAP),
             ),
             indexmap_fun_insert(
                 "IndexMap [INSERT]",
-                IndexMap::with_capacity(u16::MAX as usize),
+                IndexMap::with_capacity(U16_CAP),
             ),
             std_hashmap_fun_insert(
                 "StdHashMap [INSERT]",
-                HashMap::with_capacity(u16::MAX as usize),
+                HashMap::with_capacity(U16_CAP),
             ),
             pmap_fun_get(
                 "VecPrimitiveMap [GET]",
-                VecPrimitiveMap::with_capacity(u16::MAX as usize),
+                VecPrimitiveMap::with_capacity(U16_CAP),
             ),
-            indexmap_fun_get("IndexMap [GET]", IndexMap::with_capacity(u16::MAX as usize)),
+            indexmap_fun_get("IndexMap [GET]", IndexMap::with_capacity(U16_CAP)),
             std_hashmap_fun_get(
                 "StdHashMap [GET]",
-                HashMap::with_capacity(u16::MAX as usize),
+                HashMap::with_capacity(U16_CAP),
             ),
         ],
         (low, high),
@@ -229,16 +235,16 @@ fn bench_u16(c: &mut Criterion) {
 
 fn bench_u64_low_load(c: &mut Criterion) {
     let low = black_box(0);
-    let high = black_box(LOW_LOAD_BATCH_SIZE as u64);
+    let high = black_box(LOW_LOAD_MAX as u64);
     c.bench_functions(
         &format!(
             "Key: u64, Capacity: {}, Load: {}",
-            LOW_LOAD_MAP_SIZE, LOW_LOAD_BATCH_SIZE
+            LOW_LOAD_CAP, LOW_LOAD_MAX
         ),
         vec![
             pmap_fun_insert(
                 "VecPrimitiveMap [INSERT]",
-                VecPrimitiveMap::with_capacity(LOW_LOAD_MAP_SIZE as usize),
+                VecPrimitiveMap::with_capacity(LOW_LOAD_CAP),
             ),
             pmap_fun_insert(
                 "ArrayPrimitiveMap [INSERT]",
@@ -250,15 +256,15 @@ fn bench_u64_low_load(c: &mut Criterion) {
             ),
             indexmap_fun_insert(
                 "IndexMap [INSERT]",
-                IndexMap::with_capacity(LOW_LOAD_MAP_SIZE as usize),
+                IndexMap::with_capacity(LOW_LOAD_CAP),
             ),
             std_hashmap_fun_insert(
                 "StdHashMap [INSERT]",
-                HashMap::with_capacity(LOW_LOAD_MAP_SIZE as usize),
+                HashMap::with_capacity(LOW_LOAD_CAP),
             ),
             pmap_fun_get(
                 "VecPrimitiveMap [GET]",
-                VecPrimitiveMap::with_capacity(LOW_LOAD_MAP_SIZE as usize),
+                VecPrimitiveMap::with_capacity(LOW_LOAD_CAP),
             ),
             pmap_fun_get(
                 "ArrayPrimitiveMap [GET]",
@@ -270,11 +276,11 @@ fn bench_u64_low_load(c: &mut Criterion) {
             ),
             indexmap_fun_get(
                 "IndexMap [GET]",
-                IndexMap::with_capacity(LOW_LOAD_MAP_SIZE as usize),
+                IndexMap::with_capacity(LOW_LOAD_CAP),
             ),
             std_hashmap_fun_get(
                 "StdHashMap [GET]",
-                HashMap::with_capacity(LOW_LOAD_MAP_SIZE as usize),
+                HashMap::with_capacity(LOW_LOAD_CAP),
             ),
         ],
         (low, high),
@@ -283,16 +289,16 @@ fn bench_u64_low_load(c: &mut Criterion) {
 
 fn bench_u64_overload(c: &mut Criterion) {
     let low = black_box(0);
-    let high = black_box(OVERLOAD_BATCH_SIZE as u64);
+    let high = black_box(OVERLOAD_MAX as u64);
     c.bench_functions(
         &format!(
             "Key: u64, Capacity: {}, Load: {}",
-            OVERLOAD_MAP_SIZE, OVERLOAD_BATCH_SIZE
+            OVERLOAD_CAP, OVERLOAD_MAX
         ),
         vec![
             pmap_fun_insert(
                 "VecPrimitiveMap [INSERT]",
-                VecPrimitiveMap::with_capacity(OVERLOAD_MAP_SIZE as usize),
+                VecPrimitiveMap::with_capacity(OVERLOAD_CAP),
             ),
             pmap_fun_insert(
                 "ArrayPrimitiveMap [INSERT]",
@@ -300,15 +306,15 @@ fn bench_u64_overload(c: &mut Criterion) {
             ),
             indexmap_fun_insert(
                 "IndexMap [INSERT]",
-                IndexMap::with_capacity(OVERLOAD_MAP_SIZE as usize),
+                IndexMap::with_capacity(OVERLOAD_CAP),
             ),
             std_hashmap_fun_insert(
                 "StdHashMap [INSERT]",
-                HashMap::with_capacity(OVERLOAD_MAP_SIZE as usize),
+                HashMap::with_capacity(OVERLOAD_CAP),
             ),
             pmap_fun_get(
                 "VecPrimitiveMap [GET]",
-                VecPrimitiveMap::with_capacity(OVERLOAD_MAP_SIZE as usize),
+                VecPrimitiveMap::with_capacity(OVERLOAD_CAP),
             ),
             pmap_fun_get(
                 "ArrayPrimitiveMap [GET]",
@@ -316,11 +322,11 @@ fn bench_u64_overload(c: &mut Criterion) {
             ),
             indexmap_fun_get(
                 "IndexMap [GET]",
-                IndexMap::with_capacity(OVERLOAD_MAP_SIZE as usize),
+                IndexMap::with_capacity(OVERLOAD_CAP),
             ),
             std_hashmap_fun_get(
                 "StdHashMap [GET]",
-                HashMap::with_capacity(OVERLOAD_MAP_SIZE as usize),
+                HashMap::with_capacity(OVERLOAD_CAP),
             ),
         ],
         (low, high),
