@@ -8,15 +8,15 @@ pub mod kv;
 
 use std::marker::PhantomData;
 
-pub use bucket::{Bucket, BucketStore, BucketStoreNew, OptionBucket, SmallVecBucket1,
-                 SmallVecBucket4, VecBucket};
+pub use bucket::{Bucket, BucketStore, BucketStoreNew, OptionBucket, SmallVecBucket2,
+                 SmallVecBucket1, SmallVecBucket4, VecBucket};
 pub use hash::{DefaultHasher, Hash, Hasher};
 pub use kv::{Key, Value};
 
 pub struct PrimitiveMap<
     K: Key,
     V: Value,
-    B: Bucket<K, V> + 'static = SmallVecBucket1<K, V>,
+    B: Bucket<K, V> + 'static = SmallVecBucket4<K, V>,
     BL: BucketStore<K, V, B> = Vec<B>,
     H: Hasher<K> = DefaultHasher<K>,
 > {
@@ -42,7 +42,7 @@ where
 pub type VecPrimitiveMap<K, V> =
     PrimitiveMap<K, V, SmallVecBucket4<K, V>, Vec<SmallVecBucket4<K, V>>, DefaultHasher<K>>;
 
-/// `Array`-based `map` with `SmallVec`(1) buckets.
+/// `Array`-based `map` with `SmallVec`(2) buckets.
 /// The main array is stored on the stack,
 /// the buckets may extend onto heap.
 pub type ArrayPrimitiveMap<K, V, A> =
